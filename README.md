@@ -1,113 +1,90 @@
-# Golfinho
+# GOLFINHO
 
-**A cross-platform system reconnaissance and security research prototype built with Python.**
+<p align="center">
+  <img src="src/golfinho/interface/dolphin.svg" alt="Golfinho security mascot" width="180">
+</p>
 
-Golfinho is an experimental project focused on collecting local system and network information, normalizing observations across operating systems, and building a foundation for evidence-based security checks.
+<h3 align="center">Cross-platform system reconnaissance & security research prototype</h3>
 
-The project currently targets **Windows and Linux**. It is designed around a simple principle: collect what the host exposes, report what could not be collected, and keep observations separate from security conclusions.
+<p align="center">
+  <a href="https://github.com/LourencoGHJ/linux-security-checker/actions/workflows/tests.yml">
+    <img src="https://github.com/LourencoGHJ/linux-security-checker/actions/workflows/tests.yml/badge.svg?branch=feat%2Fcross-platform-profile-core" alt="Automated tests">
+  </a>
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux-1687c9" alt="Windows and Linux">
+  <img src="https://img.shields.io/badge/mode-read--only-159b75" alt="Read-only">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab" alt="Python 3.10 or newer">
+  <img src="https://img.shields.io/badge/status-research%20prototype-orange" alt="Research prototype">
+</p>
 
-> **Project status:** Early-stage research prototype. Golfinho is not a production endpoint protection platform, a complete vulnerability scanner, or a compliance certification tool.
+Golfinho is a Python-based research project that collects local operating-system and network information, normalizes observations across Windows and Linux, and provides an initial foundation for evidence-based security checks.
+
+Its purpose is to make host security information easier to inspect, compare, test and report — while being explicit about what was collected, what failed, and what is not yet supported.
+
+> **Project status:** early-stage research prototype. Golfinho is not an endpoint detection and response (EDR) product, a complete vulnerability scanner, a penetration-testing framework, or a compliance certification tool.
 
 ---
 
-## Contents
+## What Golfinho does
 
-- [Project goals](#project-goals)
-- [Current capabilities](#current-capabilities)
-- [Platform support](#platform-support)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Example output](#example-output)
-- [How collection works](#how-collection-works)
-- [Architecture](#architecture)
-- [Testing](#testing)
-- [Security and privacy principles](#security-and-privacy-principles)
-- [Limitations and roadmap](#limitations-and-roadmap)
-- [Contributing](#contributing)
-- [License](#license)
+At its current stage, Golfinho brings together four main capabilities:
 
-## Project goals
+1. **Host profiling** — identifies the operating-system family, version, kernel/release, architecture, hostname and administrative context.
+2. **Local network inventory** — collects interfaces, addresses, gateways and configured DNS servers, then normalizes the results into a shared structure.
+3. **Initial security inspection** — runs selected Linux checks and collects Windows Firewall configuration and enabled-rule metadata.
+4. **Inspection and reporting** — exposes collected data through a command-line interface, a local live dashboard and a static HTML/JSON report.
 
-Golfinho is being developed to explore how operating-system-specific information can be collected and represented through a consistent Python interface.
-
-The main goals are to:
-
-- Support Windows and Linux through isolated platform-specific collection logic.
-- Normalize system and network observations into predictable data structures.
-- Make collection failures and unsupported capabilities explicit.
-- Keep collection read-only and avoid automatic remediation.
-- Build small, independently testable security checks.
-- Provide evidence that can support later investigation and reporting.
+The project is deliberately incremental: unsupported checks are reported as skipped instead of being represented as secure or silently treated as successful.
 
 ## Current capabilities
 
-### 1. System profile
+| Area | Current implementation |
+|---|---|
+| Platform profile | Windows and Linux |
+| Network interfaces | Linux and Windows |
+| IPv4 / IPv6 addresses | Linux and Windows |
+| Default gateways | Linux and Windows |
+| Configured DNS servers | Linux and Windows |
+| DNS address classification | Syntactic classification of configured addresses |
+| Linux security checks | Experimental firewall, users, services and permissions checks |
+| Windows Firewall | Read-only profiles, enabled rules, associated port/address/application filters and service information |
+| Findings | Initial rule-based findings for selected Linux checks |
+| Static report | HTML and JSON |
+| Live dashboard | Local browser UI, background collection and one-second UI refresh |
+| Automated tests | Python unittest suite and GitHub Actions matrix |
 
-The `profile` command collects basic host metadata:
-
-- Operating-system family and name.
-- Distribution identifier where applicable.
-- OS version and kernel/release.
-- CPU architecture.
-- Hostname.
-- Whether the current process has administrative privileges.
-- UTC collection timestamp.
-- Collection mode.
-
-### 2. Network inventory
-
-The `network` command collects local network configuration where the operating system exposes it:
-
-- Network interfaces and operational state.
-- Interface type where it can be identified: physical, virtual, loopback, or unknown.
-- MAC addresses.
-- IPv4 and IPv6 addresses with prefix lengths.
-- Default gateways and associated interfaces.
-- Configured DNS server addresses.
-- Basic DNS address classification, such as private, global, loopback, link-local, reserved, or deprecated IPv6 site-local.
-- Per-source collection status and errors.
-
-DNS classification is syntactic and based on address ranges. It does **not** test reachability, verify DNS responses, or establish that a resolver is trustworthy.
-
-### 3. Experimental Linux checks
-
-The repository also contains Linux-oriented checks for selected areas, including:
-
-- Firewall configuration.
-- User and account information.
-- Services.
-- File permissions.
-
-The Linux checks remain experimental and platform-specific. Windows now has an initial read-only firewall inventory that collects profile settings, enabled-rule metadata and the Windows Firewall service state. Windows users, services and permissions checks remain unimplemented and are reported as skipped.
-
-## Platform support
+### Platform support and known gaps
 
 | Capability | Linux | Windows |
 |---|---:|---:|
 | System profile | Supported | Supported |
-| Network interfaces and addresses | Supported | Supported |
-| Default gateways | Supported | Supported |
-| Configured DNS servers | Supported | Supported |
-| Firewall inventory | Experimental Linux checks | Initial read-only inventory |
-| User/account check | Experimental | Not implemented |
-| Services check | Experimental | Not implemented |
-| File-permission check | Experimental | Not implemented |
+| Network inventory | Supported | Supported |
+| Firewall inventory | Experimental Linux check | Initial Windows Firewall collector |
+| User/account checks | Experimental | Not implemented |
+| Service checks | Experimental | Not implemented |
+| File-permission checks | Experimental | Not implemented |
+| Dashboard | Supported for collected data | Supported for collected data |
+| HTML / JSON report | Supported for collected data | Supported for collected data |
 
-Support refers to the current implementation, not a guarantee that every operating-system version, configuration, or permission level exposes every data source.
+“Supported” describes the current code path, not a guarantee that every operating-system version, permission level, shell configuration or data source will be available. Partial collection is possible and is surfaced through source statuses, errors and skipped-check records.
+
+## Screenshots and interface
+
+The local dashboard presents the latest collected host profile, network inventory, DNS configuration, Windows Firewall information, findings, errors and skipped checks.
+
+The dashboard page refreshes its displayed snapshot every **1 second**. The background collector runs every **5 seconds by default**; its interval can be configured. A one-second UI refresh is not millisecond-level telemetry and does not mean that every operating-system source is queried every second.
 
 ## Requirements
 
 - Python **3.10 or newer**.
-- Linux: `iproute2` for interface and route collection.
-- Windows: PowerShell and the built-in NetTCPIP networking cmdlets.
-- No third-party runtime dependencies are currently required by the implemented profile and network commands.
+- Linux: `iproute2` (the `ip` command) for network collection.
+- Windows: PowerShell and the relevant built-in networking / firewall cmdlets.
+- No third-party Python runtime dependencies are currently declared.
 
-Some collection sources may be unavailable depending on the operating system, environment, permissions, or installed system tools. Golfinho reports these conditions in its output.
+Some system queries may require elevated privileges or may be unavailable in a particular environment. Golfinho should report unavailable sources rather than silently inventing values.
 
 ## Installation
 
-Clone the repository and enter its directory:
+Clone the repository:
 
 ```bash
 git clone https://github.com/LourencoGHJ/linux-security-checker.git
@@ -116,241 +93,196 @@ cd linux-security-checker
 
 Create and activate a virtual environment.
 
-**Windows PowerShell:**
+**Windows PowerShell**
 
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-**Linux:**
+**Linux**
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install Golfinho in editable mode:
+Install the project in editable mode:
 
 ```bash
+python -m pip install --upgrade pip
 python -m pip install -e .
 ```
 
 ## Usage
 
-### Collect a system profile
+All commands can be run as `python -m golfinho ...` after installation.
 
-Human-readable output:
+### 1. System profile
 
 ```bash
 python -m golfinho profile
-```
-
-JSON output:
-
-```bash
 python -m golfinho profile --format json
 ```
 
-### Run the live local dashboard
+Collects basic host and operating-system metadata.
 
-Start the interactive dashboard:
+### 2. Local network inventory
+
+```bash
+python -m golfinho network
+python -m golfinho network --format json
+```
+
+Collects local interfaces, MAC addresses, IP addresses and prefixes, default gateways, configured DNS servers, source status and collection errors.
+
+DNS classification is based on IP address ranges only. It does **not** test resolver reachability, DNS responses, security, availability or trustworthiness. On Linux, `/etc/resolv.conf` may expose a local stub resolver rather than the upstream DNS servers.
+
+### 3. Live local dashboard
 
 ```bash
 python -m golfinho dashboard
 ```
 
-The dashboard opens at `http://127.0.0.1:8765` and displays the latest system profile, network interfaces and addresses, gateways, DNS configuration, firewall profiles, enabled firewall rules and associated filters, findings, skipped checks, and collection errors.
+By default, the dashboard opens at:
 
-- The browser interface refreshes its displayed snapshot every **1 second**.
-- System collection runs in a background worker every **5 seconds** by default.
-- Choose a different collection interval in seconds (minimum 1 second):
+```text
+http://127.0.0.1:8765
+```
+
+Options:
 
 ```bash
 python -m golfinho dashboard --interval 10
+python -m golfinho dashboard --port 9000
+python -m golfinho dashboard --no-browser
 ```
 
-- Use `--port 9000` to select another local port.
-- Use `--no-browser` to start the server without opening a browser.
-- Press `Ctrl+C` in the terminal to stop the dashboard.
+- `--interval`: seconds between background collections (default: 5; minimum: 1).
+- `--port`: local HTTP port (default: 8765).
+- `--no-browser`: start without automatically opening a browser.
+- Press `Ctrl+C` in the terminal to stop the server.
 
-The one-second browser refresh is not a promise of millisecond-level system telemetry. Actual collection duration depends on the operating system and its management commands; the dashboard shows the timestamp and duration of the latest completed collection. A one-second collection interval can increase system load and may not make a slow source return faster.
+The dashboard binds to **127.0.0.1 only**. It is intended for use on the same computer and is not exposed as a LAN or public web service. Collection is read-only. The browser refresh interval and collection interval are separate.
 
-**Local privacy:** the server binds only to `127.0.0.1`; it is not exposed to the LAN or public Internet. Data is collected locally and served to the browser on the same computer. Collection is read-only and does not modify firewall or network settings.
+### 4. Static audit report
 
-### Generate a local HTML audit report
-
-Run the supported read-only checks and generate a report containing system information, network inventory, firewall profiles, enabled firewall rules and their associated filters, findings, skipped checks and collection errors:
+HTML:
 
 ```bash
 python -m golfinho report --format html
 ```
 
-The report is written to the `reports/` directory. On Windows, open the generated `.html` file in a browser. The report is a point-in-time snapshot; run the command again to refresh it. It does not change firewall or network configuration.
-
-To generate JSON instead:
+JSON:
 
 ```bash
 python -m golfinho report --format json
 ```
 
-### Collect local network information
-
-Human-readable output:
+Reports are written to the `reports/` directory by default. To choose another output directory:
 
 ```bash
-python -m golfinho network
+python -m golfinho report --format html --output-dir output
 ```
 
-JSON output:
+A report is a point-in-time snapshot. Run the command again to collect a new snapshot.
 
-```bash
-python -m golfinho network --format json
-```
+## How it works
 
-The JSON format is intended to make the collected information easier to inspect, test, and consume in future tooling.
+Golfinho separates operating-system-specific collection from the shared representation used by the rest of the project.
 
-## Example output
+- **Platform adapters** identify the host and collect platform-specific metadata.
+- **Collectors** query local network and firewall configuration.
+- **Scanner** runs the checks available for the detected operating system and records skipped checks and errors.
+- **Evidence and rules** provide the initial structure for findings.
+- **Report and dashboard layers** present the collected snapshot without changing host configuration.
 
-A shortened example of the network inventory:
-
-```json
-{
-  "platform": "Windows",
-  "interfaces": [
-    {
-      "name": "Ethernet",
-      "kind": "physical",
-      "is_up": true,
-      "mac": "00-11-22-33-44-55",
-      "addresses": [
-        {
-          "family": "IPv4",
-          "address": "192.168.1.100",
-          "prefix_length": 24
-        }
-      ]
-    }
-  ],
-  "gateways": [
-    {
-      "family": "IPv4",
-      "address": "192.168.1.1",
-      "interface": "Ethernet"
-    }
-  ],
-  "dns_servers": [
-    "192.168.1.1"
-  ],
-  "collection_mode": "read-only"
-}
-```
-
-This is an illustrative, shortened example. Actual values depend on the host.
-
-## How collection works
-
-Golfinho uses platform-specific collection methods behind a shared interface:
-
-- **Linux:** uses `iproute2` JSON output for interfaces and default routes, and reads `/etc/resolv.conf` for configured name servers.
-- **Windows:** uses PowerShell with the built-in `Get-NetAdapter`, `Get-NetIPAddress`, `Get-NetRoute`, and `Get-DnsClientServerAddress` cmdlets.
-- **Normalization:** maps platform-specific results into common fields so downstream code can work with a consistent structure.
-- **Partial results:** records the status of individual sources and includes errors when a source cannot be queried.
-
-On Linux, `/etc/resolv.conf` may point to a local stub resolver rather than list upstream DNS servers. On Windows, the reported DNS addresses are configured values; their availability is not tested.
-
-## Architecture
-
-The code is organized around separate responsibilities:
+### Repository layout
 
 ```text
-src/
-└── golfinho/
-    ├── checks/
-    │   ├── firewall.py
-    │   ├── network.py
-    │   ├── permissions.py
-    │   ├── services.py
-    │   └── users.py
-    ├── engine/
-    │   ├── evidence.py
-    │   ├── rules.py
-    │   ├── scanner.py
-    │   └── severity.py
-    ├── intelligence/
-    │   ├── prompts.py
-    │   └── references.py
-    ├── platform/
-    │   ├── detector.py
-    │   ├── linux.py
-    │   └── windows.py
-    ├── reports/
-    ├── interface/
-    ├── main.py
-    └── __main__.py
+src/golfinho/
+├── checks/
+│   ├── firewall.py
+│   ├── network.py
+│   ├── permissions.py
+│   ├── services.py
+│   ├── users.py
+│   └── windows_firewall.py
+├── engine/
+│   ├── evidence.py
+│   ├── rules.py
+│   ├── scanner.py
+│   └── severity.py
+├── intelligence/
+│   ├── prompts.py
+│   └── references.py
+├── interface/
+│   ├── dashboard.py
+│   └── dolphin.svg
+├── platform/
+│   ├── detector.py
+│   ├── linux.py
+│   └── windows.py
+├── reports/
+├── main.py
+└── __main__.py
 tests/
+└── ...
 ```
 
-- `platform/` contains operating-system detection and host profile adapters.
-- `checks/` contains focused collection and audit modules.
-- `engine/` orchestrates checks and works with rules and evidence.
-- `intelligence/` contains investigation prompts and technical references.
-- `reports/` and `interface/` are reserved for reporting and user-interface development.
-- `tests/` contains automated tests for supported behavior and failure conditions.
+## Testing and continuous integration
 
-## Testing
-
-Run the complete test suite:
+Run the complete test suite locally:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-The tests use mocked operating-system command output where appropriate, so platform-specific parsing and error handling can be tested without changing the host configuration.
+The test suite covers platform profile detection, scanner platform separation, network parsing and classification, Windows Firewall collection, HTML report generation and live-dashboard state/markup.
 
-Some legacy account-check tests require POSIX modules such as `grp` and `pwd`. They are skipped on Windows and are expected to run on supported POSIX systems.
+GitHub Actions is configured to run the unittest suite on:
 
-## Security and privacy principles
+- Ubuntu and Windows runners.
+- Python 3.10, 3.11, 3.12 and 3.13.
 
-1. **Read-only collection:** profile, network and Windows Firewall collectors do not change system or network configuration.
-2. **No remote scanning:** the network inventory describes the local host; it does not probe remote devices or ports.
-3. **No automatic remediation:** Golfinho does not automatically modify firewall rules, accounts, services, or permissions.
-4. **Evidence before conclusions:** collected observations are not automatically vulnerabilities.
-5. **Explicit uncertainty:** unavailable tools, permission errors, and unsupported checks must remain visible.
-6. **Platform isolation:** operating-system-specific behavior should stay behind dedicated adapters.
-7. **Data minimization:** hostnames, MAC addresses, IP addresses, and other environment details can be sensitive. Review and redact collected output before publishing it or attaching it to an issue.
+That is an **8-environment CI matrix**. Check the Actions badge above or the [workflow runs](https://github.com/LourencoGHJ/linux-security-checker/actions/workflows/tests.yml) for the current result. A configured workflow is not itself proof that every run passed; only a completed green run confirms that matrix for that commit.
 
-## Limitations and roadmap
+Some POSIX-specific tests are skipped on Windows because modules such as `grp` and `pwd` are not available there.
 
-Golfinho is being developed incrementally. Current and planned work includes:
+## Security model, privacy and scope
 
-- [x] Cross-platform host profile for Linux and Windows.
-- [x] Read-only network inventory for Linux and Windows.
-- [x] Normalized network output and source-level error reporting.
-- [x] Initial interface and DNS address classification.
-- [ ] Validate the latest network classification changes on both Windows and Linux.
-- [ ] Expand automated tests on real Linux distributions, including Manjaro.
-- [x] Add a read-only Windows Firewall inventory with profile settings, enabled-rule metadata and associated port, address and application filters.
-- [x] Include system, network and firewall observations in the HTML audit report.
-- [x] Add a local live dashboard with background collection and one-second browser refresh.
-- [ ] Expand Windows Firewall analysis with associated address/port filters and evidence-based checks.
-- [ ] Improve evidence normalization and security findings.
-- [ ] Add more platform-specific checks and improve the depth of evidence collected by the live dashboard.
+- **Read-only by design:** collectors inspect local configuration; they do not change firewall rules, users, services, permissions or network settings.
+- **No remote scanning:** network inventory describes the local host. It does not probe remote devices, ports or services.
+- **No automatic remediation:** findings do not trigger configuration changes.
+- **Observations are not vulnerabilities:** an IP classification or collected setting is not, by itself, proof of a security issue.
+- **Uncertainty stays visible:** unavailable sources, errors and unsupported checks should remain explicit.
+- **Local dashboard:** the HTTP server binds to loopback (`127.0.0.1`).
+- **Sensitive output:** hostnames, MAC addresses, IP addresses, usernames and configuration details may be sensitive. Review and redact collected output before sharing reports, screenshots or issue attachments.
 
-Roadmap items are intentions, not claims of existing functionality.
+## Roadmap
+
+The next development priorities are:
+
+- [ ] Validate the complete test suite and CI matrix on the current feature branch.
+- [ ] Test the collectors on additional Linux distributions, including Manjaro.
+- [ ] Expand Windows user, service and permission collection.
+- [ ] Improve evidence normalization and the quality/coverage of security rules.
+- [ ] Expand network and firewall test coverage using representative real-world outputs.
+- [ ] Improve dashboard usability, error visibility and collection diagnostics.
+- [ ] Keep documentation synchronized with implemented behavior.
+
+The roadmap is a plan, not a claim that these features already exist.
 
 ## Contributing
 
-This is an evolving research project. Contributions, bug reports, and technical feedback are welcome.
-
-When proposing changes:
+Issues, bug reports and technical feedback are welcome. When contributing:
 
 - Keep platform-specific code isolated.
-- Prefer the Python standard library unless a dependency has a clear benefit.
-- Include tests for normal results and collection failures.
-- Do not silently convert missing data into a secure result.
-- Document platform limitations and any additional privileges or tools required.
+- Add tests for successful collection and failure/partial-result cases.
+- Do not turn missing data into a “secure” result.
+- Document platform and privilege requirements.
+- Preserve the read-only scope unless a future design explicitly documents and reviews a change.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+Distributed under the [MIT License](LICENSE).
