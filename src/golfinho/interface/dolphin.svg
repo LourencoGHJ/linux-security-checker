@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-labelledby="title desc">
+<title id="title">Golfinho — mascote de segurança</title><desc id="desc">Golfinho azul estilizado a saltar junto de um escudo de segurança.</desc>
+<defs>
+ <linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8beaff"/><stop offset=".48" stop-color="#24aee8"/><stop offset="1" stop-color="#0875ba"/></linearGradient>
+ <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#48e4ff"/><stop offset="1" stop-color="#0878c8"/></linearGradient>
+ <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<g fill="none" stroke="#1cb9ef" stroke-width="3" opacity=".42"><path d="M24 164Q12 112 50 70M40 181Q23 128 68 86M75 198Q52 153 93 111"/></g>
+<g filter="url(#glow)">
+ <path d="M215 89l48 17v42c0 34-21 54-48 68-27-14-48-34-48-68v-42z" fill="#082a45" stroke="url(#shield)" stroke-width="7"/>
+ <path d="M215 119a16 16 0 0 1 16 16v8h-32v-8a16 16 0 0 1 16-16zm-21 24h42v29h-42z" fill="none" stroke="#75eaff" stroke-width="5" stroke-linejoin="round"/>
+ <circle cx="215" cy="158" r="4" fill="#75eaff"/><path d="M215 162v8" stroke="#75eaff" stroke-width="4"/>
+</g>
+<g filter="url(#glow)">
+ <path d="M43 135c14-31 40-62 78-78 25-11 57-14 83-5 17 6 31 18 41 34-20-7-39-8-57-3 15 5 28 13 39 25-28-7-52-5-74 4-21 9-35 24-47 42-12 18-26 30-47 34-19 4-36-3-47-16 17 3 31-1 42-12-20 3-37-5-47-25 14 8 26 8 36 0z" fill="url(#body)" stroke="#9defff" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M122 62c-7-21-2-39 15-51 5 20 15 31 30 38M106 80c-20-8-38-6-53 7 17 2 28 10 34 24" fill="#168acb" stroke="#83eaff" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M184 59c21-4 41 1 61 17-19-4-36-2-53 5" fill="#d8faff" opacity=".9"/>
+ <circle cx="204" cy="61" r="5.5" fill="#05253b"/><circle cx="206" cy="59" r="1.8" fill="#fff"/>
+ <path d="M236 88q15 7 24 18" fill="none" stroke="#d8faff" stroke-width="4" stroke-linecap="round"/>
+ <path d="M85 166q-17 17-37 20M117 157q-7 25-26 39" fill="none" stroke="#8deaff" stroke-width="6" stroke-linecap="round"/>
+</g>
+<g fill="#55dfff" opacity=".9"><circle cx="35" cy="54" r="4"/><circle cx="57" cy="35" r="3"/><circle cx="83" cy="20" r="2.5"/><circle cx="139" cy="17" r="3"/></g>
+<path d="M29 202q43 9 89 0" fill="none" stroke="#168acb" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+</svg>
