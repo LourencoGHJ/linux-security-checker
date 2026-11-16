@@ -53,6 +53,7 @@ class DashboardState:
     def __init__(self, interval_seconds):
         self.interval_seconds = interval_seconds
         self.lock = threading.Lock()
+        self.collect_lock = threading.Lock()
         self.data = None
         self.updated_at = None
         self.error = None
@@ -61,20 +62,21 @@ class DashboardState:
         self.thread = None
 
     def collect_once(self):
-        started = time.monotonic()
-        try:
-            from golfinho.engine.scanner import run_security_scan
-            data = run_security_scan()
-            error = None
-        except Exception as exc:
-            data, error = None, str(exc)
-        timestamp = datetime.now(timezone.utc).isoformat()
-        with self.lock:
-            if data is not None:
-                self.data, self.updated_at, self.error = data, timestamp, None
-            else:
-                self.error = error
-            self.last_duration_seconds = round(time.monotonic() - started, 3)
+        with self.collect_lock:
+            started = time.monotonic()
+            try:
+                from golfinho.engine.scanner import run_security_scan
+                data = run_security_scan()
+                error = None
+            except Exception as exc:
+                data, error = None, str(exc)
+            timestamp = datetime.now(timezone.utc).isoformat()
+            with self.lock:
+                if data is not None:
+                    self.data, self.updated_at, self.error = data, timestamp, None
+                else:
+                    self.error = error
+                self.last_duration_seconds = round(time.monotonic() - started, 3)
 
     def start(self):
         def worker():
