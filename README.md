@@ -72,3 +72,17 @@ experimental and must be validated before being relied upon.
 ## Author
 
 Guilherme Faria
+
+
+## Network inventory
+
+The read-only network collector is available on Windows and Linux:
+
+```powershell
+python -m golfinho network
+python -m golfinho network --format json
+```
+
+It reports local network interfaces, IPv4/IPv6 addresses, default gateways and configured DNS servers where the operating system exposes them. Linux collection uses `iproute2` and reads `/etc/resolv.conf`; Windows collection uses the built-in NetTCPIP PowerShell cmdlets. Individual source failures are reported rather than silently treated as empty or secure results.
+
+This command does not scan remote hosts, send discovery probes, or change network configuration. On Linux, `/etc/resolv.conf` may contain a local stub resolver rather than the upstream DNS servers.
