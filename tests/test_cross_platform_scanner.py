@@ -18,11 +18,11 @@ class TestCrossPlatformScanner(unittest.TestCase):
         self.assertEqual(result["platform"]["family"], "Windows")
         self.assertEqual(result["network"]["platform"], "Windows")
         network.assert_called_once_with()
-        self.assertIsNone(result["firewall"])
+        self.assertEqual(result["firewall"]["platform"], "Windows")
         self.assertIsNone(result["users"])
         self.assertIsNone(result["services"])
         self.assertIsNone(result["permissions"])
-        self.assertEqual(len(result["checks_skipped"]), 4)
+        self.assertEqual(len(result["checks_skipped"]), 3)
         self.assertEqual(result["findings"], [])
         self.assertEqual(result["errors"], [])
 
