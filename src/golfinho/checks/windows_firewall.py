@@ -1,0 +1,99 @@
+"""Read-only Windows Defender Firewall inventory."""
+import json
+import subprocess
+
+
+_WINDOWS_FIREWALL_SCRIPT = r"""
+$ErrorActionPreference = 'Stop'
+$profiles = @(Get-NetFirewallProfile -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name.ToString()}}, Enabled, @{Name='default_inbound_action';Expression={$_.DefaultInboundAction.ToString()}}, @{Name='default_outbound_action';Expression={$_.DefaultOutboundAction.ToString()}})
+$rules = @(Get-NetFirewallRule -PolicyStore ActiveStore -Enabled True -ErrorAction Stop | Select-Object Name, DisplayName, @{Name='direction';Expression={$_.Direction.ToString()}}, @{Name='action';Expression={$_.Action.ToString()}}, @{Name='profile';Expression={$_.Profile.ToString()}}, @{Name='policy_store_source';Expression={$_.PolicyStoreSource}}, @{Name='policy_store_source_type';Expression={$_.PolicyStoreSourceType.ToString()}})
+$service = Get-Service -Name MpsSvc -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name}}, @{Name='status';Expression={$_.Status.ToString()}}, @{Name='start_type';Expression={$_.StartType.ToString()}}
+[pscustomobject]@{profiles=$profiles; rules=$rules; service=$service} | ConvertTo-Json -Depth 5 -Compress
+"""
+
+
+def _run(command, timeout=20):
+    return subprocess.run(command, capture_output=True, text=True, check=False, timeout=timeout)
+
+
+def _empty_result():
+    return {
+        "platform": "Windows",
+        "profiles": [],
+        "enabled_rules": [],
+        "rule_counts": {},
+        "service": None,
+        "sources": {},
+        "errors": [],
+        "collection_mode": "read-only",
+    }
+
+
+def collect_windows_firewall_info():
+    """Collect local firewall profiles, enabled rule metadata and service state."""
+    result = _empty_result()
+    command = [
+        "powershell.exe", "-NoProfile", "-NonInteractive",
+        "-ExecutionPolicy", "Bypass", "-Command", _WINDOWS_FIREWALL_SCRIPT,
+    ]
+    try:
+        completed = _run(command)
+        if completed.returncode:
+            raise RuntimeError(completed.stderr.strip() or "Windows Firewall query failed")
+        data = json.loads(completed.stdout or "{}")
+        if not isinstance(data, dict):
+            raise ValueError("Unexpected PowerShell response shape")
+
+        profiles = data.get("profiles") or []
+        rules = data.get("rules") or []
+        service = data.get("service")
+        if isinstance(profiles, dict):
+            profiles = [profiles]
+        if isinstance(rules, dict):
+            rules = [rules]
+        if isinstance(service, list):
+            service = service[0] if service else None
+
+        result["profiles"] = [
+            {
+                "name": item.get("name"),
+                "enabled": item.get("enabled"),
+                "default_inbound_action": item.get("default_inbound_action"),
+                "default_outbound_action": item.get("default_outbound_action"),
+            }
+            for item in profiles
+        ]
+        result["enabled_rules"] = [
+            {
+                "name": item.get("name"),
+                "display_name": item.get("display_name"),
+                "direction": item.get("direction"),
+                "action": item.get("action"),
+                "profile": item.get("profile"),
+                "policy_store_source": item.get("policy_store_source"),
+                "policy_store_source_type": item.get("policy_store_source_type"),
+            }
+            for item in rules
+        ]
+        counts = {}
+        for rule in result["enabled_rules"]:
+            key = "{},{}".format(
+                str(rule.get("direction") or "Unknown"),
+                str(rule.get("action") or "Unknown"),
+            )
+            counts[key] = counts.get(key, 0) + 1
+        result["rule_counts"] = counts
+        if service:
+            result["service"] = {
+                "name": service.get("name"),
+                "status": service.get("status"),
+                "start_type": service.get("start_type"),
+            }
+
+        for source in ("profiles", "rules", "service"):
+            result["sources"][source] = {"status": "ok"}
+    except (OSError, subprocess.SubprocessError, RuntimeError, ValueError, TypeError) as error:
+        for source in ("profiles", "rules", "service"):
+            result["sources"][source] = {"status": "unavailable", "detail": str(error)}
+        result["errors"].append({"source": "windows_firewall", "error": str(error)})
+    return result
