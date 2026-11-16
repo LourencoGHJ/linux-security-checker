@@ -152,6 +152,22 @@ JSON output:
 python -m golfinho profile --format json
 ```
 
+### Generate a local HTML audit report
+
+Run the supported read-only checks and generate a report containing system information, network inventory, firewall profiles, enabled firewall rules and their associated filters, findings, skipped checks and collection errors:
+
+```bash
+python -m golfinho report --format html
+```
+
+The report is written to the `reports/` directory. On Windows, open the generated `.html` file in a browser. The report is a point-in-time snapshot; run the command again to refresh it. It does not change firewall or network configuration.
+
+To generate JSON instead:
+
+```bash
+python -m golfinho report --format json
+```
+
 ### Collect local network information
 
 Human-readable output:
@@ -288,7 +304,8 @@ Golfinho is being developed incrementally. Current and planned work includes:
 - [x] Initial interface and DNS address classification.
 - [ ] Validate the latest network classification changes on both Windows and Linux.
 - [ ] Expand automated tests on real Linux distributions, including Manjaro.
-- [x] Add an initial read-only Windows Firewall inventory (profiles, enabled-rule metadata and service state).
+- [x] Add a read-only Windows Firewall inventory with profile settings, enabled-rule metadata and associated port, address and application filters.
+- [x] Include system, network and firewall observations in the HTML audit report.
 - [ ] Expand Windows Firewall analysis with associated address/port filters and evidence-based checks.
 - [ ] Improve evidence normalization and security findings.
 - [ ] Develop structured reports and a more complete user interface.
