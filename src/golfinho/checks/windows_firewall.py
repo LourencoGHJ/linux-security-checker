@@ -5,8 +5,8 @@ import subprocess
 
 _WINDOWS_FIREWALL_SCRIPT = r"""
 $ErrorActionPreference = 'Stop'
-$profiles = @(Get-NetFirewallProfile -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name.ToString()}}, Enabled, @{Name='default_inbound_action';Expression={$_.DefaultInboundAction.ToString()}}, @{Name='default_outbound_action';Expression={$_.DefaultOutboundAction.ToString()}})
-$rules = @(Get-NetFirewallRule -PolicyStore ActiveStore -Enabled True -ErrorAction Stop | Select-Object Name, DisplayName, @{Name='direction';Expression={$_.Direction.ToString()}}, @{Name='action';Expression={$_.Action.ToString()}}, @{Name='profile';Expression={$_.Profile.ToString()}}, @{Name='policy_store_source';Expression={$_.PolicyStoreSource}}, @{Name='policy_store_source_type';Expression={$_.PolicyStoreSourceType.ToString()}})
+$profiles = @(Get-NetFirewallProfile -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name.ToString()}}, @{Name='enabled';Expression={$_.Enabled}}, @{Name='default_inbound_action';Expression={$_.DefaultInboundAction.ToString()}}, @{Name='default_outbound_action';Expression={$_.DefaultOutboundAction.ToString()}})
+$rules = @(Get-NetFirewallRule -PolicyStore ActiveStore -Enabled True -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name}}, @{Name='display_name';Expression={$_.DisplayName}}, @{Name='direction';Expression={$_.Direction.ToString()}}, @{Name='action';Expression={$_.Action.ToString()}}, @{Name='profile';Expression={$_.Profile.ToString()}}, @{Name='policy_store_source';Expression={$_.PolicyStoreSource}}, @{Name='policy_store_source_type';Expression={$_.PolicyStoreSourceType.ToString()}})
 $service = Get-Service -Name MpsSvc -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name}}, @{Name='status';Expression={$_.Status.ToString()}}, @{Name='start_type';Expression={$_.StartType.ToString()}}
 [pscustomobject]@{profiles=$profiles; rules=$rules; service=$service} | ConvertTo-Json -Depth 5 -Compress
 """
