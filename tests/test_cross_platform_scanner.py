@@ -5,7 +5,7 @@ from golfinho.engine.scanner import run_security_scan
 
 
 class TestCrossPlatformScanner(unittest.TestCase):
-    @patch("golfinho.engine.scanner.collect_network_info", create=True)
+    @patch("golfinho.checks.network.collect_network_info)
     @patch("golfinho.platform.detector.detect_platform")
     def test_windows_scan_skips_linux_only_checks(self, detect, network):
         detect.return_value = {"family": "Windows", "name": "Windows 11"}
@@ -27,7 +27,7 @@ class TestCrossPlatformScanner(unittest.TestCase):
         self.assertEqual(result["errors"], [])
 
     @patch("golfinho.engine.scanner._load_linux_checks")
-    @patch("golfinho.engine.scanner.collect_network_info", create=True)
+    @patch("golfinho.checks.network.collect_network_info)
     @patch("golfinho.platform.detector.detect_platform")
     def test_linux_scan_loads_linux_checks(self, detect, network, load_checks):
         detect.return_value = {"family": "Linux", "name": "Manjaro"}
