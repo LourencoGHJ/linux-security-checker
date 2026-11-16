@@ -1,4 +1,3 @@
-# GOLFINHO
 
 <p align="center">
   <img src="src/golfinho/interface/dolphin.svg" alt="Golfinho security mascot" width="180">
