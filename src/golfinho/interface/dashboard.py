@@ -4,19 +4,20 @@ import threading
 import time
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from urllib.parse import urlparse
 
 PAGE = r"""<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GOLFINHO Live</title>
 <style>
 :root{color-scheme:dark;--bg:#071521;--panel:#102536;--line:#25465d;--text:#e8f4fb;--muted:#9bb2c2;--green:#51d6a0;--amber:#f0bd62;--red:#ff7777}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% 0%,#123149 0,transparent 38%),var(--bg);color:var(--text);font:14px/1.55 Inter,"Segoe UI",Arial,sans-serif}
-header{padding:24px 4vw;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.brand{font-size:25px;font-weight:800;letter-spacing:2px}.muted,.sub{color:var(--muted)}
+header{padding:24px 4vw;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.brand{font-size:25px;font-weight:800;letter-spacing:2px}.muted,.sub{color:var(--muted)}.brand-lockup{display:flex;align-items:center;gap:16px}.brand-logo{width:104px;height:78px;object-fit:contain;filter:drop-shadow(0 0 12px #159bd866)}
 main{max-width:1500px;margin:24px auto;padding:0 3vw}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 button,input{background:#0a1c2a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}button{cursor:pointer}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.card,.section{background:linear-gradient(145deg,var(--panel),#0d2030);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}.metric{font-size:28px;font-weight:750}.metric-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}
 .section{margin-top:14px}.section h2{font-size:16px;margin:0 0 12px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:550px}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}th{color:var(--muted);font-size:11px;text-transform:uppercase}.list{display:grid;gap:8px}.item{padding:10px;background:#0a1c2a;border:1px solid var(--line);border-radius:8px}.ok{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}.empty{color:var(--muted);padding:10px}.foot{padding:24px 0;color:var(--muted);font-size:12px}
 @media(max-width:850px){.grid,.two{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.grid,.two{grid-template-columns:1fr}}
 </style></head><body>
-<header><div><div class="brand">GOLFINHO</div><div class="sub">Local Security Investigation Dashboard</div></div><div><strong id="connection" class="ok">A iniciar</strong><div id="lastUpdate" class="sub">À espera da primeira recolha</div></div></header>
+<header><div class="brand-lockup"><img class="brand-logo" src="/dolphin.svg" alt="Mascote Golfinho — segurança digital"><div><div class="brand">GOLFINHO</div><div class="sub">Local Security Investigation Dashboard</div></div></div><div><strong id="connection" class="ok">A iniciar</strong><div id="lastUpdate" class="sub">À espera da primeira recolha</div></div></header>
 <main><div class="toolbar"><div><strong id="host">Host local</strong><div id="platform" class="sub">A identificar o sistema...</div></div><div class="sub">UI: 1 s · Recolha: <b id="interval">5</b> s <button id="refresh">Recolher agora</button></div></div>
 <div class="grid"><div class="card"><div class="metric-label">Interfaces</div><div id="interfacesCount" class="metric">—</div></div><div class="card"><div class="metric-label">Regras firewall</div><div id="rulesCount" class="metric">—</div></div><div class="card"><div class="metric-label">Ocorrências</div><div id="findingsCount" class="metric">—</div></div><div class="card"><div class="metric-label">Erros</div><div id="errorsCount" class="metric">—</div></div></div>
 <div class="section"><h2>Sistema e fontes</h2><div class="two"><div id="system" class="list"></div><div id="sources" class="list"></div></div></div>
@@ -123,6 +124,9 @@ def serve_dashboard(port=8765, interval_seconds=5, open_browser=True):
             path = urlparse(self.path).path
             if path == "/":
                 self.send_body(200, PAGE, "text/html; charset=utf-8")
+            elif path == "/dolphin.svg":
+                logo = Path(__file__).with_name("dolphin.svg").read_text(encoding="utf-8")
+                self.send_body(200, logo, "image/svg+xml; charset=utf-8")
             elif path == "/api/snapshot":
                 self.send_body(200, json.dumps(state.snapshot(), ensure_ascii=False, default=str),
                                "application/json; charset=utf-8")
