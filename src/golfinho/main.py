@@ -37,7 +37,8 @@ def _print_network(network, output_format):
     print("=" * 32)
     print(f"Platform: {network.get('platform', 'unknown')}")
     print(f"Collection mode: {network.get('collection_mode', 'unknown')}")
-    print()\n    print("Interfaces:")
+    print()
+    print("Interfaces:")
     for interface in network.get("interfaces", []):
         state = "up" if interface.get("is_up") is True else (
             "down" if interface.get("is_up") is False else "unknown"
@@ -49,14 +50,17 @@ def _print_network(network, output_format):
             prefix = address.get("prefix_length")
             suffix = f"/{prefix}" if prefix is not None else ""
             print(f"    {address.get('family', 'IP')}: {address.get('address')}{suffix}")
-    print()\n    print("Gateways:")
+    print()
+    print("Gateways:")
     for gateway in network.get("gateways", []):
         print(f"  {gateway.get('family')}: {gateway.get('address')} "
               f"({gateway.get('interface') or 'interface unknown'})")
-    print()\n    print("DNS servers:")
+    print()
+    print("DNS servers:")
     for server in network.get("dns_servers", []):
         print(f"  {server}")
-    print()\n    print("Source status:")
+    print()
+    print("Source status:")
     for source, details in network.get("sources", {}).items():
         print(f"  {source}: {details.get('status')}")
         if details.get("detail"):
