@@ -142,6 +142,113 @@ def generate_html_report(results, output_dir="reports"):
         for label, value in system_fields
     )
 
+    network = results.get("network") or {}
+    firewall = results.get("firewall") or {}
+    skipped_checks = results.get("checks_skipped") or []
+
+    interface_rows = []
+    for interface in network.get("interfaces", []):
+        addresses = ", ".join(
+            "{} {}".format(item.get("family", "IP"), item.get("address", "—"))
+            for item in interface.get("addresses", [])
+        ) or "—"
+        interface_rows.append(
+            "<tr>"
+            f"<td>{escape(str(interface.get('name') or '—'))}</td>"
+            f"<td>{escape(str(interface.get('kind') or '—'))}</td>"
+            f"<td>{escape(_format_value(interface.get('is_up')))}</td>"
+            f"<td>{escape(str(interface.get('mac') or '—'))}</td>"
+            f"<td>{escape(addresses)}</td>"
+            "</tr>"
+        )
+    gateway_rows = "".join(
+        "<tr>"
+        f"<td>{escape(str(item.get('family') or '—'))}</td>"
+        f"<td>{escape(str(item.get('address') or '—'))}</td>"
+        f"<td>{escape(str(item.get('interface') or '—'))}</td>"
+        "</tr>"
+        for item in network.get("gateways", [])
+    ) or '<tr><td colspan="3">Sem gateways recolhidos.</td></tr>'
+    dns_rows = "".join(
+        "<tr>"
+        f"<td>{escape(str(item))}</td>"
+        f"<td>{escape(str(next((entry.get('classification') for entry in network.get('dns_server_analysis', []) if entry.get('address') == item), '—')))}</td>"
+        "</tr>"
+        for item in network.get("dns_servers", [])
+    ) or '<tr><td colspan="2">Sem servidores DNS recolhidos.</td></tr>'
+    network_section = f"""
+    <section class="panel" id="network">
+        <h2>Inventário de rede</h2>
+        <p>Estado das fontes: {escape(_format_value(network.get('sources', {})))}</p>
+        <h3>Interfaces</h3>
+        <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Interface</th><th>Tipo</th><th>Ativa</th><th>MAC</th><th>Endereços</th></tr></thead>
+            <tbody>{''.join(interface_rows) or '<tr><td colspan="5">Sem interfaces recolhidas.</td></tr>'}</tbody>
+        </table></div>
+        <h3>Gateways</h3>
+        <table class="data-table"><thead><tr><th>Família</th><th>Endereço</th><th>Interface</th></tr></thead><tbody>{gateway_rows}</tbody></table>
+        <h3>Servidores DNS</h3>
+        <table class="data-table"><thead><tr><th>Endereço</th><th>Classificação sintática</th></tr></thead><tbody>{dns_rows}</tbody></table>
+    </section>
+    """
+
+    profile_rows = "".join(
+        "<tr>"
+        f"<td>{escape(str(item.get('name') or '—'))}</td>"
+        f"<td>{escape(_format_value(item.get('enabled')))}</td>"
+        f"<td>{escape(str(item.get('default_inbound_action') or '—'))}</td>"
+        f"<td>{escape(str(item.get('default_outbound_action') or '—'))}</td>"
+        "</tr>"
+        for item in firewall.get("profiles", [])
+    ) or '<tr><td colspan="4">Sem perfis de firewall recolhidos.</td></tr>'
+    rule_rows = []
+    for rule in firewall.get("enabled_rules", []):
+        filters = {
+            "port": rule.get("port_filters", []),
+            "address": rule.get("address_filters", []),
+            "application": rule.get("application_filters", []),
+        }
+        rule_rows.append(
+            "<tr>"
+            f"<td>{escape(str(rule.get('display_name') or rule.get('name') or '—'))}</td>"
+            f"<td>{escape(str(rule.get('direction') or '—'))}</td>"
+            f"<td>{escape(str(rule.get('action') or '—'))}</td>"
+            f"<td>{escape(str(rule.get('profile') or '—'))}</td>"
+            f"<td>{escape(_format_value(filters))}</td>"
+            "</tr>"
+        )
+    service = firewall.get("service") or {}
+    firewall_section = f"""
+    <section class="panel" id="firewall">
+        <h2>Windows Firewall</h2>
+        <p>Contagem de regras ativas: <strong>{escape(_format_value(firewall.get('rule_counts', {})))}</strong></p>
+        <p>Serviço: <strong>{escape(str(service.get('name') or '—'))}</strong>
+        · Estado: <strong>{escape(str(service.get('status') or '—'))}</strong>
+        · Arranque: <strong>{escape(str(service.get('start_type') or '—'))}</strong></p>
+        <p>Estado das fontes: {escape(_format_value(firewall.get('sources', {})))}</p>
+        <h3>Perfis</h3>
+        <table class="data-table"><thead><tr><th>Perfil</th><th>Ativo</th><th>Entrada por defeito</th><th>Saída por defeito</th></tr></thead><tbody>{profile_rows}</tbody></table>
+        <h3>Regras ativas e filtros associados</h3>
+        <input id="firewallSearch" class="search-box" type="search" placeholder="Pesquisar regras, portas, endereços ou aplicações...">
+        <div class="table-wrap"><table class="data-table" id="firewallRules">
+            <thead><tr><th>Regra</th><th>Direção</th><th>Ação</th><th>Perfil</th><th>Filtros (portas, endereços, aplicações)</th></tr></thead>
+            <tbody>{''.join(rule_rows) or '<tr><td colspan="5">Sem regras ativas recolhidas.</td></tr>'}</tbody>
+        </table></div>
+    </section>
+    """
+    skipped_section = ""
+    if skipped_checks:
+        skipped_rows = "".join(
+            f"<tr><td>{escape(str(item.get('check') or '—'))}</td><td>{escape(str(item.get('reason') or '—'))}</td></tr>"
+            for item in skipped_checks
+        )
+        skipped_section = f"""
+        <section class="panel" id="skipped">
+            <h2>Verificações não implementadas nesta plataforma</h2>
+            <table class="data-table"><thead><tr><th>Verificação</th><th>Motivo</th></tr></thead><tbody>{skipped_rows}</tbody></table>
+        </section>
+        """
+
     severity_labels = {
         "CRITICAL": "Crítica",
         "HIGH": "Alta",
@@ -554,7 +661,7 @@ footer {{
 <header>
     <div class="header-content">
         <div>
-            <div class="brand"><img class="mascot" src="../assets/golfinho-mascot.png" alt="Mascote GOLFINHO"> GOLFINHO</div>
+            <div class="brand"><img class="mascot" src="../assets/golfinho-mascot.jpg" alt="Mascote GOLFINHO"> GOLFINHO</div>
             <div>Relatório de auditoria de segurança</div>
         </div>
         <div class="header-meta">
@@ -567,6 +674,8 @@ footer {{
 <nav>
     <a href="#summary">Resumo</a>
     <a href="#system">Sistema</a>
+    <a href="#network">Rede</a>
+    <a href="#firewall">Firewall</a>
     <a href="#findings">Ocorrências</a>
     <a href="#details">Detalhes</a>
     { '<a href="#errors">Erros</a>' if errors else '' }
@@ -597,6 +706,10 @@ footer {{
 
     {findings_table}
 
+    {network_section}
+    {firewall_section}
+    {skipped_section}
+
     <section id="details">
         <h2>Detalhe das ocorrências</h2>
         {findings_content}
@@ -620,6 +733,16 @@ function toggleTheme() {{
 
 if (localStorage.getItem("golfinho-theme") === "dark") {{
     document.body.classList.add("dark");
+}}
+
+const firewallSearch = document.getElementById("firewallSearch");
+if (firewallSearch) {{
+    firewallSearch.addEventListener("input", function () {{
+        const query = this.value.toLowerCase();
+        document.querySelectorAll("#firewallRules tbody tr").forEach(function (item) {{
+            item.style.display = item.innerText.toLowerCase().includes(query) ? "" : "none";
+        }});
+    }});
 }}
 
 const search = document.getElementById("findingSearch");
