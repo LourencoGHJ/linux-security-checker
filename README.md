@@ -79,7 +79,7 @@ The repository also contains Linux-oriented checks for selected areas, including
 - Services.
 - File permissions.
 
-These checks are experimental and platform-specific. They are not currently implemented as equivalent Windows checks. The scanner reports unsupported checks as skipped rather than treating them as successful or failed security results.
+The Linux checks remain experimental and platform-specific. Windows now has an initial read-only firewall inventory that collects profile settings, enabled-rule metadata and the Windows Firewall service state. Windows users, services and permissions checks remain unimplemented and are reported as skipped.
 
 ## Platform support
 
@@ -89,7 +89,7 @@ These checks are experimental and platform-specific. They are not currently impl
 | Network interfaces and addresses | Supported | Supported |
 | Default gateways | Supported | Supported |
 | Configured DNS servers | Supported | Supported |
-| Firewall check | Experimental | Not implemented |
+| Firewall inventory | Experimental Linux checks | Initial read-only inventory |
 | User/account check | Experimental | Not implemented |
 | Services check | Experimental | Not implemented |
 | File-permission check | Experimental | Not implemented |
