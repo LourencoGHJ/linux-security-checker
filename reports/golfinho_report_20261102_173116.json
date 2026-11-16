@@ -1,0 +1,65 @@
+{
+    "tool": "GOLFINHO",
+    "report_version": "1.0",
+    "generated_at": "2026-11-02T17:31:16.138213+00:00",
+    "platform": {
+        "family": "Linux",
+        "distribution": "Manjaro Linux",
+        "distribution_id": "manjaro",
+        "version": "unknown",
+        "kernel": "6.18.55-1-MANJARO",
+        "architecture": "x86_64",
+        "hostname": "lourencoghj-aspirea315510p",
+        "is_admin": false
+    },
+    "summary": {
+        "total_findings": 1,
+        "severity_counts": {
+            "CRITICAL": 0,
+            "HIGH": 0,
+            "MEDIUM": 0,
+            "LOW": 0,
+            "INFO": 1,
+            "UNKNOWN": 0
+        },
+        "total_errors": 0
+    },
+    "findings": [
+        {
+            "id": "GOL-8ABA6E85",
+            "rule_id": "GOL-FW-001",
+            "timestamp": "2026-11-02T17:31:16.137439+00:00",
+            "title": "Verificação do firewall incompleta",
+            "category": "FIREWALL",
+            "severity": "INFO",
+            "confidence": "HIGH",
+            "description": "Não foi possível consultar todos os detalhes do firewall com os privilégios atuais.",
+            "evidence": {
+                "detected_states": {
+                    "ufw": "PERMISSION_DENIED",
+                    "firewalld": "NOT_INSTALLED",
+                    "nftables": "PERMISSION_DENIED",
+                    "nftables_service": "INACTIVE"
+                },
+                "observation": "Consulta do firewall incompleta."
+            },
+            "recommendation": "Executar novamente a auditoria com privilégios administrativos para obter informação mais completa.",
+            "source": null,
+            "filename": null,
+            "references": [
+                {
+                    "name": "UFW Documentation",
+                    "url": "https://help.ubuntu.com/community/UFW",
+                    "type": "Official documentation"
+                },
+                {
+                    "name": "nftables Documentation",
+                    "url": "https://www.netfilter.org/projects/nftables/",
+                    "type": "Official documentation"
+                }
+            ],
+            "investigation_prompt": "ATUA COMO: Especialista sénior em Linux, Windows e Cybersecurity.\n\nPROJETO: GOLFINHO Security Investigation Toolkit\n\nSISTEMA ANALISADO:\nManjaro Linux\n\nIDENTIFICADOR:\nGOL-8ABA6E85\n\nREGRA:\nGOL-FW-001\n\nOCORRÊNCIA:\nVerificação do firewall incompleta\n\nCATEGORIA:\nFIREWALL\n\nGRAVIDADE:\nINFO\n\nCONFIANÇA DA DETEÇÃO:\nHIGH\n\nFICHEIRO RELACIONADO:\nNão aplicável\n\nDESCRIÇÃO:\nNão foi possível consultar todos os detalhes do firewall com os privilégios atuais.\n\nEVIDÊNCIA:\n{'detected_states': {'ufw': 'PERMISSION_DENIED', 'firewalld': 'NOT_INSTALLED', 'nftables': 'PERMISSION_DENIED', 'nftables_service': 'INACTIVE'}, 'observation': 'Consulta do firewall incompleta.'}\n\nRECOMENDAÇÃO INICIAL:\nExecutar novamente a auditoria com privilégios administrativos para obter informação mais completa.\n\nOBJETIVO DA INVESTIGAÇÃO:\n\n1. Explica tecnicamente o que foi detetado.\n2. Determina se representa realmente um risco de segurança.\n3. Identifica possíveis falsos positivos.\n4. Explica como validar a ocorrência no sistema analisado.\n5. Apresenta comandos de diagnóstico seguros e não destrutivos.\n6. Consulta documentação oficial e referências relevantes.\n7. Se existir uma CVE aplicável, apresenta o identificador e a fonte.\n8. Propõe uma correção fundamentada, caso seja necessária.\n9. Explica os possíveis efeitos secundários da correção.\n\nREGRAS:\n\n- Não inventes vulnerabilidades ou CVE.\n- Não assumas que uma configuração é perigosa sem contexto.\n- Não executes alterações no sistema.\n- Distingue factos, hipóteses e recomendações.\n- Utiliza português de Portugal.\n- Prioriza fontes oficiais e documentação técnica."
+        }
+    ],
+    "errors": []
+}

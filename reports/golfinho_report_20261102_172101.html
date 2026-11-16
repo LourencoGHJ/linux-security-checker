@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOLFINHO - Relatório de Segurança</title>
+<style>
+body {
+    margin: 0;
+    padding: 30px;
+    background: #f1f5f9;
+    color: #172033;
+    font-family: Arial, sans-serif;
+}
+.container {
+    max-width: 1050px;
+    margin: auto;
+}
+header {
+    background: #0f2742;
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+}
+header h1 { margin-top: 0; }
+.summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+}
+.summary-card {
+    background: white;
+    padding: 18px;
+    border-radius: 10px;
+    text-align: center;
+}
+.summary-card strong {
+    display: block;
+    font-size: 26px;
+}
+.summary-card span {
+    color: #64748b;
+}
+.finding {
+    background: white;
+    padding: 24px;
+    margin: 18px 0;
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+}
+.finding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+.severity {
+    color: white;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 12px;
+}
+pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+a { color: #2563eb; }
+footer {
+    color: #64748b;
+    text-align: center;
+    margin-top: 30px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+    <h1>GOLFINHO</h1>
+    <p>Security Investigation Toolkit</p>
+    <p>Relatório de auditoria de segurança</p>
+</header>
+
+<h2>Resumo da auditoria</h2>
+
+<p><strong>Sistema:</strong>
+Manjaro Linux</p>
+
+<p><strong>Kernel / Versão:</strong>
+6.18.55-1-MANJARO</p>
+
+<p><strong>Arquitetura:</strong>
+x86_64</p>
+
+<p><strong>Data de geração:</strong>
+2026-11-02T17:21:01.440140+00:00</p>
+
+<div class="summary">
+<div class="summary-card"><strong>0</strong><span>CRITICAL</span></div><div class="summary-card"><strong>0</strong><span>HIGH</span></div><div class="summary-card"><strong>0</strong><span>MEDIUM</span></div><div class="summary-card"><strong>0</strong><span>LOW</span></div><div class="summary-card"><strong>1</strong><span>INFO</span></div><div class="summary-card"><strong>0</strong><span>UNKNOWN</span></div>
+</div>
+
+<h2>Ocorrências identificadas (1)</h2>
+
+
+        <section class="finding">
+            <div class="finding-header">
+                <h2>Verificação do firewall incompleta</h2>
+                <span class="severity" style="background:#64748b">
+                    INFO
+                </span>
+            </div>
+
+            <p><strong>ID:</strong> GOL-122831E2</p>
+            <p><strong>Regra:</strong> GOL-FW-001</p>
+            <p><strong>Categoria:</strong> FIREWALL</p>
+            <p><strong>Confiança da deteção:</strong>
+                HIGH
+            </p>
+
+            <h3>Descrição</h3>
+            <p>Não foi possível consultar todos os detalhes do firewall com os privilégios atuais.</p>
+
+            <h3>Evidência</h3>
+            <pre>{
+  &quot;detected_states&quot;: {
+    &quot;ufw&quot;: &quot;PERMISSION_DENIED&quot;,
+    &quot;firewalld&quot;: &quot;NOT_INSTALLED&quot;,
+    &quot;nftables&quot;: &quot;PERMISSION_DENIED&quot;,
+    &quot;nftables_service&quot;: &quot;INACTIVE&quot;
+  },
+  &quot;observation&quot;: &quot;Consulta do firewall incompleta.&quot;
+}</pre>
+
+            <h3>Recomendação</h3>
+            <p>Executar novamente a auditoria com privilégios administrativos para obter informação mais completa.</p>
+
+            <h3>Referências técnicas</h3>
+            <ul><li><a href="https://help.ubuntu.com/community/UFW" target="_blank" rel="noopener noreferrer">UFW Documentation</a></li><li><a href="https://www.netfilter.org/projects/nftables/" target="_blank" rel="noopener noreferrer">nftables Documentation</a></li></ul>
+
+            <h3>Prompt de investigação</h3>
+            <pre>ATUA COMO: Especialista sénior em Linux, Windows e Cybersecurity.
+
+PROJETO: GOLFINHO Security Investigation Toolkit
+
+SISTEMA ANALISADO:
+Manjaro Linux
+
+IDENTIFICADOR:
+GOL-122831E2
+
+REGRA:
+GOL-FW-001
+
+OCORRÊNCIA:
+Verificação do firewall incompleta
+
+CATEGORIA:
+FIREWALL
+
+GRAVIDADE:
+INFO
+
+CONFIANÇA DA DETEÇÃO:
+HIGH
+
+FICHEIRO RELACIONADO:
+Não aplicável
+
+DESCRIÇÃO:
+Não foi possível consultar todos os detalhes do firewall com os privilégios atuais.
+
+EVIDÊNCIA:
+{&#x27;detected_states&#x27;: {&#x27;ufw&#x27;: &#x27;PERMISSION_DENIED&#x27;, &#x27;firewalld&#x27;: &#x27;NOT_INSTALLED&#x27;, &#x27;nftables&#x27;: &#x27;PERMISSION_DENIED&#x27;, &#x27;nftables_service&#x27;: &#x27;INACTIVE&#x27;}, &#x27;observation&#x27;: &#x27;Consulta do firewall incompleta.&#x27;}
+
+RECOMENDAÇÃO INICIAL:
+Executar novamente a auditoria com privilégios administrativos para obter informação mais completa.
+
+OBJETIVO DA INVESTIGAÇÃO:
+
+1. Explica tecnicamente o que foi detetado.
+2. Determina se representa realmente um risco de segurança.
+3. Identifica possíveis falsos positivos.
+4. Explica como validar a ocorrência no sistema analisado.
+5. Apresenta comandos de diagnóstico seguros e não destrutivos.
+6. Consulta documentação oficial e referências relevantes.
+7. Se existir uma CVE aplicável, apresenta o identificador e a fonte.
+8. Propõe uma correção fundamentada, caso seja necessária.
+9. Explica os possíveis efeitos secundários da correção.
+
+REGRAS:
+
+- Não inventes vulnerabilidades ou CVE.
+- Não assumas que uma configuração é perigosa sem contexto.
+- Não executes alterações no sistema.
+- Distingue factos, hipóteses e recomendações.
+- Utiliza português de Portugal.
+- Prioriza fontes oficiais e documentação técnica.</pre>
+        </section>
+        
+
+<h2>Erros de auditoria</h2>
+<pre>[]</pre>
+
+<footer>
+    GOLFINHO Security Investigation Toolkit — Relatório gerado automaticamente.
+    <br>Os resultados dependem das verificações e permissões disponíveis.
+</footer>
+</div>
+</body>
+</html>
