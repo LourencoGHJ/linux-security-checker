@@ -89,6 +89,17 @@ def build_parser():
         "--format", choices=("text", "json"), default="text",
         help="output format (default: text)",
     )
+    report_parser = subparsers.add_parser(
+        "report", help="run the supported local checks and generate an HTML or JSON report"
+    )
+    report_parser.add_argument(
+        "--format", choices=("html", "json"), default="html",
+        help="report format (default: html)",
+    )
+    report_parser.add_argument(
+        "--output-dir", default="reports",
+        help="directory where the report is written (default: reports)",
+    )
     return parser
 
 def main(argv=None):
@@ -111,6 +122,20 @@ def main(argv=None):
             return 1
         _print_network(network, args.format)
         return 0
+    if args.command == "report":
+        try:
+            from golfinho.engine.scanner import run_security_scan
+            from golfinho.reports.generator import generate_html_report, generate_json_report
+            results = run_security_scan()
+            generator = generate_html_report if args.format == "html" else generate_json_report
+            destination = generator(results, output_dir=args.output_dir)
+            print(f"Golfinho report generated: {destination}")
+            print(f"Platform: {(results.get('platform') or {}).get('name', 'unknown')}")
+            print(f"Execution errors: {len(results.get('errors', []))}")
+            return 0
+        except Exception as error:
+            print(f"Golfinho could not generate the report: {error}", file=sys.stderr)
+            return 1
     parser.error("unsupported command")
     return 2
 
