@@ -270,7 +270,7 @@ Some legacy account-check tests require POSIX modules such as `grp` and `pwd`. T
 
 ## Security and privacy principles
 
-1. **Read-only collection:** current profile and network inventory commands do not change system or network configuration.
+1. **Read-only collection:** profile, network and Windows Firewall collectors do not change system or network configuration.
 2. **No remote scanning:** the network inventory describes the local host; it does not probe remote devices or ports.
 3. **No automatic remediation:** Golfinho does not automatically modify firewall rules, accounts, services, or permissions.
 4. **Evidence before conclusions:** collected observations are not automatically vulnerabilities.
@@ -288,7 +288,8 @@ Golfinho is being developed incrementally. Current and planned work includes:
 - [x] Initial interface and DNS address classification.
 - [ ] Validate the latest network classification changes on both Windows and Linux.
 - [ ] Expand automated tests on real Linux distributions, including Manjaro.
-- [ ] Implement a read-only Windows Firewall inspection module.
+- [x] Add an initial read-only Windows Firewall inventory (profiles, enabled-rule metadata and service state).
+- [ ] Expand Windows Firewall analysis with associated address/port filters and evidence-based checks.
 - [ ] Improve evidence normalization and security findings.
 - [ ] Develop structured reports and a more complete user interface.
 
