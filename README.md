@@ -86,3 +86,6 @@ python -m golfinho network --format json
 It reports local network interfaces, IPv4/IPv6 addresses, default gateways and configured DNS servers where the operating system exposes them. Linux collection uses `iproute2` and reads `/etc/resolv.conf`; Windows collection uses the built-in NetTCPIP PowerShell cmdlets. Individual source failures are reported rather than silently treated as empty or secure results.
 
 This command does not scan remote hosts, send discovery probes, or change network configuration. On Linux, `/etc/resolv.conf` may contain a local stub resolver rather than the upstream DNS servers.
+
+
+The network inventory also classifies interfaces as physical, virtual, loopback or unknown where the operating system exposes enough metadata. DNS addresses receive a syntax/address-range classification (for example, private, global, loopback or deprecated IPv6 site-local). This is not a reachability test and does not by itself establish that a DNS server is working or malicious.
