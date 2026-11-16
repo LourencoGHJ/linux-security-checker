@@ -27,7 +27,13 @@ def _classify_dns_server(address):
         return "multicast"
     if parsed.is_link_local:
         return "link_local"
-    if parsed.is_private:
+    private_ranges = (
+        ipaddress.ip_network("10.0.0.0/8"),
+        ipaddress.ip_network("172.16.0.0/12"),
+        ipaddress.ip_network("192.168.0.0/16"),
+        ipaddress.ip_network("fc00::/7"),
+    )
+    if any(parsed.version == network.version and parsed in network for network in private_ranges):
         return "private"
     if parsed.is_global:
         return "global"
@@ -58,7 +64,8 @@ def _add_dns_analysis(result):
 
 def _empty_result(family):
     return {"platform": family, "interfaces": [], "gateways": [], "dns_servers": [],
-            "sources": {}, "errors": [], "collection_mode": "read-only"}
+            "dns_server_analysis": [], "sources": {}, "errors": [],
+            "collection_mode": "read-only"}
 
 
 def _record_source(result, name, status, detail=None):
