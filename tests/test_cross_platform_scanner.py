@@ -5,13 +5,17 @@ from golfinho.engine.scanner import run_security_scan
 
 
 class TestCrossPlatformScanner(unittest.TestCase):
+    @patch("golfinho.checks.windows_firewall.collect_windows_firewall_info")
     @patch("golfinho.checks.network.collect_network_info")
     @patch("golfinho.platform.detector.detect_platform")
-    def test_windows_scan_skips_linux_only_checks(self, detect, network):
+    def test_windows_scan_skips_linux_only_checks(self, detect, network, firewall):
         detect.return_value = {"family": "Windows", "name": "Windows 11"}
         network.return_value = {"platform": "Windows", "interfaces": [], "gateways": [],
                                 "dns_servers": [], "sources": {}, "errors": [],
                                 "collection_mode": "read-only"}
+        firewall.return_value = {"platform": "Windows", "profiles": [], "enabled_rules": [],
+                                 "rule_counts": {}, "service": None, "sources": {},
+                                 "errors": [], "collection_mode": "read-only"}
 
         result = run_security_scan()
 
@@ -19,6 +23,7 @@ class TestCrossPlatformScanner(unittest.TestCase):
         self.assertEqual(result["network"]["platform"], "Windows")
         network.assert_called_once_with()
         self.assertEqual(result["firewall"]["platform"], "Windows")
+        firewall.assert_called_once_with()
         self.assertIsNone(result["users"])
         self.assertIsNone(result["services"])
         self.assertIsNone(result["permissions"])
