@@ -130,6 +130,18 @@ def run_security_scan():
         results["errors"].append({"check": "network", "error": str(error)})
 
     family = results["platform"].get("family", "").lower()
+    if family == "windows":
+        try:
+            from golfinho.checks.windows_firewall import collect_windows_firewall_info
+            results["firewall"] = collect_windows_firewall_info()
+        except Exception as error:
+            results["errors"].append({"check": "firewall", "error": str(error)})
+        results["checks_skipped"] = [
+            {"check": name, "reason": "NOT_IMPLEMENTED_FOR_PLATFORM"}
+            for name in ("users", "services", "permissions")
+        ]
+        return results
+
     if family != "linux":
         results["checks_skipped"] = [
             {
