@@ -111,6 +111,7 @@ def run_security_scan():
         "users": None,
         "services": None,
         "permissions": None,
+        "network": None,
         "errors": [],
         "checks_skipped": [],
         "findings": [],
@@ -121,6 +122,12 @@ def run_security_scan():
     except Exception as error:
         results["errors"].append({"check": "platform", "error": str(error)})
         return results
+
+    try:
+        from golfinho.checks.network import collect_network_info
+        results["network"] = collect_network_info()
+    except Exception as error:
+        results["errors"].append({"check": "network", "error": str(error)})
 
     family = results["platform"].get("family", "").lower()
     if family != "linux":
