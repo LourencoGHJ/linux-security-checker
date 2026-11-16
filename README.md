@@ -152,6 +152,32 @@ JSON output:
 python -m golfinho profile --format json
 ```
 
+### Run the live local dashboard
+
+Start the interactive dashboard:
+
+```bash
+python -m golfinho dashboard
+```
+
+The dashboard opens at `http://127.0.0.1:8765` and displays the latest system profile, network interfaces and addresses, gateways, DNS configuration, firewall profiles, enabled firewall rules and associated filters, findings, skipped checks, and collection errors.
+
+- The browser interface refreshes its displayed snapshot every **1 second**.
+- System collection runs in a background worker every **5 seconds** by default.
+- Choose a different collection interval in seconds (minimum 1 second):
+
+```bash
+python -m golfinho dashboard --interval 10
+```
+
+- Use `--port 9000` to select another local port.
+- Use `--no-browser` to start the server without opening a browser.
+- Press `Ctrl+C` in the terminal to stop the dashboard.
+
+The one-second browser refresh is not a promise of millisecond-level system telemetry. Actual collection duration depends on the operating system and its management commands; the dashboard shows the timestamp and duration of the latest completed collection. A one-second collection interval can increase system load and may not make a slow source return faster.
+
+**Local privacy:** the server binds only to `127.0.0.1`; it is not exposed to the LAN or public Internet. Data is collected locally and served to the browser on the same computer. Collection is read-only and does not modify firewall or network settings.
+
 ### Generate a local HTML audit report
 
 Run the supported read-only checks and generate a report containing system information, network inventory, firewall profiles, enabled firewall rules and their associated filters, findings, skipped checks and collection errors:
@@ -306,9 +332,10 @@ Golfinho is being developed incrementally. Current and planned work includes:
 - [ ] Expand automated tests on real Linux distributions, including Manjaro.
 - [x] Add a read-only Windows Firewall inventory with profile settings, enabled-rule metadata and associated port, address and application filters.
 - [x] Include system, network and firewall observations in the HTML audit report.
+- [x] Add a local live dashboard with background collection and one-second browser refresh.
 - [ ] Expand Windows Firewall analysis with associated address/port filters and evidence-based checks.
 - [ ] Improve evidence normalization and security findings.
-- [ ] Develop structured reports and a more complete user interface.
+- [ ] Add more platform-specific checks and improve the depth of evidence collected by the live dashboard.
 
 Roadmap items are intentions, not claims of existing functionality.
 
