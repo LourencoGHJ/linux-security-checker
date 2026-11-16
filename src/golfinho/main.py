@@ -100,6 +100,12 @@ def build_parser():
         "--output-dir", default="reports",
         help="directory where the report is written (default: reports)",
     )
+    dashboard_parser = subparsers.add_parser("dashboard", help="start the local live security dashboard")
+    dashboard_parser.add_argument("--port", type=int, default=8765)
+    dashboard_parser.add_argument("--interval", type=int, default=5,
+                                  help="seconds between collections (default: 5; minimum: 1)")
+    dashboard_parser.add_argument("--no-browser", action="store_true",
+                                  help="do not open the browser automatically")
     return parser
 
 def main(argv=None):
@@ -135,6 +141,15 @@ def main(argv=None):
             return 0
         except Exception as error:
             print(f"Golfinho could not generate the report: {error}", file=sys.stderr)
+            return 1
+    if args.command == "dashboard":
+        try:
+            from golfinho.interface.dashboard import serve_dashboard
+            serve_dashboard(port=args.port, interval_seconds=args.interval,
+                            open_browser=not args.no_browser)
+            return 0
+        except (OSError, ValueError) as error:
+            print(f"Golfinho dashboard could not start: {error}", file=sys.stderr)
             return 1
     parser.error("unsupported command")
     return 2
