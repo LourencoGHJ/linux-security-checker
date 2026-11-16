@@ -5,15 +5,49 @@ import subprocess
 
 _WINDOWS_FIREWALL_SCRIPT = r"""
 $ErrorActionPreference = 'Stop'
-$profiles = @(Get-NetFirewallProfile -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name.ToString()}}, @{Name='enabled';Expression={$_.Enabled}}, @{Name='default_inbound_action';Expression={$_.DefaultInboundAction.ToString()}}, @{Name='default_outbound_action';Expression={$_.DefaultOutboundAction.ToString()}})
-$rules = @(Get-NetFirewallRule -PolicyStore ActiveStore -Enabled True -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name}}, @{Name='display_name';Expression={$_.DisplayName}}, @{Name='direction';Expression={$_.Direction.ToString()}}, @{Name='action';Expression={$_.Action.ToString()}}, @{Name='profile';Expression={$_.Profile.ToString()}}, @{Name='policy_store_source';Expression={$_.PolicyStoreSource}}, @{Name='policy_store_source_type';Expression={$_.PolicyStoreSourceType.ToString()}})
+$profiles = @(Get-NetFirewallProfile -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name.ToString()}}, @{Name='enabled';Expression={[bool]$_.Enabled}}, @{Name='default_inbound_action';Expression={$_.DefaultInboundAction.ToString()}}, @{Name='default_outbound_action';Expression={$_.DefaultOutboundAction.ToString()}})
+$rules = @(Get-NetFirewallRule -PolicyStore ActiveStore -Enabled True -ErrorAction Stop)
+$ruleData = @(
+    foreach ($rule in $rules) {
+        $port = @(Get-NetFirewallPortFilter -AssociatedNetFirewallRule $rule | Select-Object Protocol, LocalPort, RemotePort, IcmpType, DynamicTarget)
+        $address = @(Get-NetFirewallAddressFilter -AssociatedNetFirewallRule $rule | Select-Object LocalAddress, RemoteAddress)
+        $application = @(Get-NetFirewallApplicationFilter -AssociatedNetFirewallRule $rule | Select-Object Program, Package)
+        [pscustomobject]@{
+            name = $rule.Name
+            display_name = $rule.DisplayName
+            direction = $rule.Direction.ToString()
+            action = $rule.Action.ToString()
+            profile = $rule.Profile.ToString()
+            policy_store_source = $rule.PolicyStoreSource
+            policy_store_source_type = $rule.PolicyStoreSourceType.ToString()
+            port_filters = $port
+            address_filters = $address
+            application_filters = $application
+        }
+    }
+)
 $service = Get-Service -Name MpsSvc -ErrorAction Stop | Select-Object @{Name='name';Expression={$_.Name}}, @{Name='status';Expression={$_.Status.ToString()}}, @{Name='start_type';Expression={$_.StartType.ToString()}}
-[pscustomobject]@{profiles=$profiles; rules=$rules; service=$service} | ConvertTo-Json -Depth 5 -Compress
+[pscustomobject]@{profiles=$profiles; rules=$ruleData; service=$service} | ConvertTo-Json -Depth 7 -Compress
 """
 
 
-def _run(command, timeout=20):
+def _run(command, timeout=45):
     return subprocess.run(command, capture_output=True, text=True, check=False, timeout=timeout)
+
+
+def _normalize_bool(value):
+    """Normalize PowerShell/JSON boolean representations to bool or None."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int) and value in (0, 1):
+        return bool(value)
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            return True
+        if normalized in {"false", "0", "no"}:
+            return False
+    return None
 
 
 def _empty_result():
@@ -30,7 +64,7 @@ def _empty_result():
 
 
 def collect_windows_firewall_info():
-    """Collect local firewall profiles, enabled rule metadata and service state."""
+    """Collect local firewall profiles, enabled-rule metadata and associated filters."""
     result = _empty_result()
     command = [
         "powershell.exe", "-NoProfile", "-NonInteractive",
@@ -57,7 +91,7 @@ def collect_windows_firewall_info():
         result["profiles"] = [
             {
                 "name": item.get("name"),
-                "enabled": item.get("enabled"),
+                "enabled": _normalize_bool(item.get("enabled")),
                 "default_inbound_action": item.get("default_inbound_action"),
                 "default_outbound_action": item.get("default_outbound_action"),
             }
@@ -72,6 +106,9 @@ def collect_windows_firewall_info():
                 "profile": item.get("profile"),
                 "policy_store_source": item.get("policy_store_source"),
                 "policy_store_source_type": item.get("policy_store_source_type"),
+                "port_filters": item.get("port_filters") or [],
+                "address_filters": item.get("address_filters") or [],
+                "application_filters": item.get("application_filters") or [],
             }
             for item in rules
         ]
