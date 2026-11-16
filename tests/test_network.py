@@ -35,7 +35,7 @@ class TestNetworkCollector(unittest.TestCase):
         self.assertEqual(result["interfaces"][0]["addresses"][0]["prefix_length"], 24)
         self.assertEqual(result["gateways"][0]["address"], "192.0.2.1")
         self.assertEqual(result["dns_servers"], ["192.0.2.53"])
-        self.assertEqual(result["dns_server_analysis"][0]["classification"], "reserved")
+        self.assertEqual(result["dns_server_analysis"][0]["classification"], "private")
         self.assertEqual(result["errors"], [])
 
     @patch("golfinho.checks.network._run", side_effect=FileNotFoundError("powershell.exe"))
