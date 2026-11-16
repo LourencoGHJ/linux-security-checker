@@ -39,15 +39,14 @@ being incorrectly classified as Linux or Windows.
 - Python 3.10 or newer
 - No third-party runtime dependencies for the current profile command
 
-## Run from a source checkout
+## Install from a source checkout
+
+    python -m pip install -e .
+
+Run the profile command:
 
     python -m golfinho profile
     python -m golfinho profile --format json
-
-Install in editable mode:
-
-    python -m pip install -e .
-    golfinho profile
 
 Run tests:
 
