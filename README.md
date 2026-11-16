@@ -258,20 +258,6 @@ Some POSIX-specific tests are skipped on Windows because modules such as `grp` a
 - **Local dashboard:** the HTTP server binds to loopback (`127.0.0.1`).
 - **Sensitive output:** hostnames, MAC addresses, IP addresses, usernames and configuration details may be sensitive. Review and redact collected output before sharing reports, screenshots or issue attachments.
 
-## Roadmap
-
-The next development priorities are:
-
-- [ ] Validate the complete test suite and CI matrix on the current feature branch.
-- [ ] Test the collectors on additional Linux distributions, including Manjaro.
-- [ ] Expand Windows user, service and permission collection.
-- [ ] Improve evidence normalization and the quality/coverage of security rules.
-- [ ] Expand network and firewall test coverage using representative real-world outputs.
-- [ ] Improve dashboard usability, error visibility and collection diagnostics.
-- [ ] Keep documentation synchronized with implemented behavior.
-
-The roadmap is a plan, not a claim that these features already exist.
-
 ## Contributing
 
 Issues, bug reports and technical feedback are welcome. When contributing:
